@@ -8,11 +8,17 @@ global start
 call initializeGraphics
 start:
 call readKey
+call clearScreen
 call displayShape
-;collision//first display graphics. if working then later we'll write collision
+;                collision//first display graphics. if working then later we'll write collision
 jmp start
 
-
+clearScreen:
+    xor di,di
+    xor ax,ax
+    mov cx,64000
+    rep stosb;  //
+    ret
 initializeGraphics:
     mov ax,13h
     int 10h
@@ -21,11 +27,14 @@ initializeGraphics:
     ret
 
 readKey:
-    mov ax, 0001;check if key entered to continue it running
+    mov ah, 01h;       check if key entered to continue it running
     int 16h
-    jz done
-    mov ax,00
+    cmp ah,01h        ; ESC scancode
+    je end
+    mov ah,00
     int 16h
+    cmp ah,01h        ; ESC scancode
+    je end
 
     cmp ah,48h
     je moveUp
@@ -68,7 +77,7 @@ displayShape:
     jge done_length
     mov ax,[playerY]
     add ax, bx
-    mov dx,320;                offset= x-axis+ y-axis*320
+    mov dx,320;                 offset= x-axis+ y-axis*320
     mul dx
     mov di,ax
     add ax,[playerX]
@@ -82,7 +91,7 @@ displayShape:
         inc bx
         jmp rectangle_height
     
-    finished:                   call output interrup and return
+    finished:                    call output interrup and return
     ret
 
 ;
