@@ -4,12 +4,12 @@ section .data
 
 section .text
 global start
-;                 CURRENTLY have NO END INFINTE. FIX IT as wont read interrupts of exit to display graphic
+;                Might have INFINTE.  
 call initializeGraphics
 start:
 call readKey
 call displayShape
-;call collision make its logic. 
+;collision//first display graphics. if working then later we'll write collision
 jmp start
 
 
@@ -21,7 +21,7 @@ initializeGraphics:
     ret
 
 readKey:
-    mov ax, 0001;check if key entered; cehck what if we dont write these 2 lines and dont check
+    mov ax, 0001;check if key entered to continue it running
     int 16h
     jz done
     mov ax,00
@@ -35,9 +35,10 @@ readKey:
     je moveLeft
     cmp ah,4Dh
     je moveRight
+    jmp done
 
     moveUp:
-        sub [playery],1
+        sub [playerY],1
         jmp done
 
     moveDown:
@@ -67,7 +68,7 @@ displayShape:
     jge done_length
     mov ax,[playerY]
     add ax, bx
-    mov dx,320h;                offset= x-axis+ y-axis*320
+    mov dx,320;                offset= x-axis+ y-axis*320
     mul dx
     mov di,ax
     add ax,[playerX]
@@ -81,10 +82,10 @@ displayShape:
         inc bx
         jmp rectangle_height
     
-    finished;                   call output interrup and return
+    finished:                   call output interrup and return
     ret
 
-;collison: 
+;
 
 
 end:
