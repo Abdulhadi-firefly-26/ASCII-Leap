@@ -29,13 +29,12 @@ initializeGraphics:
 readKey:
     mov ah, 01h;       check if key entered to continue it running
     int 16h
-    cmp ah,01h        ; ESC scancode
-    je end
+    jz done
     mov ah,00
     int 16h
+    
     cmp ah,01h        ; ESC scancode
     je end
-
     cmp ah,48h
     je moveUp
     cmp ah,50h
@@ -46,20 +45,21 @@ readKey:
     je moveRight
     jmp done
 
+    
     moveUp:
-        sub [playerY],1
+        sub word [playerY],1
         jmp done
 
     moveDown:
-        add [playerY],1
+        add word [playerY],1
         jmp done
 
     moveLeft:
-        sub [playerX],1
+        sub word [playerX],1
         jmp done
 
     moveRight:
-        add [playerX],1
+        add word [playerX],1
         jmp done
 
     done:
@@ -79,22 +79,23 @@ displayShape:
     add ax, bx
     mov dx,320;                 offset= x-axis+ y-axis*320
     mul dx
-    mov di,ax
     add ax,[playerX]
     add ax,cx
     mov di,ax
+   
     mov byte [es:di],4
     inc cx
     jmp rectangle_length
+
 
     done_length:
         inc bx
         jmp rectangle_height
     
-    finished:                    call output interrup and return
+    finished:;                   call output interrup and return
     ret
 
-;
+
 
 
 end:
