@@ -47,7 +47,7 @@ clearScreen:
     xor di,di
     xor ax,ax
     mov cx,64000
-    rep stosb;  //
+    rep stosb; 
     ret
 initializeGraphics:
     mov ax,13h
