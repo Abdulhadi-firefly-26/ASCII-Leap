@@ -1,17 +1,47 @@
-section .data
-    playerX dw 0
-    playerY dw 0
-
-section .text
-global start
-;                Might have INFINTE.  
-call initializeGraphics
-start:
-call readKey
-call clearScreen
-call displayShape
-;                collision//first display graphics. if working then later we'll write collision
+bits 16
+org 100h
 jmp start
+playerX dw 0
+playerY dw 0
+buffer times 64000 db 0
+start:
+    mov ax,cs;no purpose just for explicit initilailzation
+    mov ds,ax
+    call initializeGraphics
+
+main:
+    call readKey
+    call clearBuffer
+    call displayShape
+    call presentFrame
+;                collision//first display graphics. if working then later we'll write collision
+    jmp main
+clearBuffer:
+    cld
+    push es
+    push ds
+    pop es
+    mov di,buffer
+    xor ax, ax
+    mov cx, 64000
+    cld
+    rep stosb
+    pop es
+    ret
+
+presentFrame:
+    push si
+    push di
+    push cx
+    cld
+    mov si,buffer
+    xor di, di
+    mov cx, 64000
+    rep movsb
+    pop cx
+    pop di
+    pop si
+    ret
 
 clearScreen:
     xor di,di
@@ -83,7 +113,7 @@ displayShape:
     add ax,cx
     mov di,ax
    
-    mov byte [es:di],4
+    mov byte [buffer+di],4
     inc cx
     jmp rectangle_length
 
