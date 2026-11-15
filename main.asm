@@ -116,14 +116,13 @@ applyGravity:
     add [playerY],bx
 
     mov bx,[groundY];
-    sub bx,14--------------------   adjust accordingly
+    sub bx,14;--------------------   adjust accordingly
 
     cmp [playerY],bx;if playerY<=groundValue------------------------------
     jl stillInAir
     mov word [is_Jumping],0
     mov [playerY],bx
     mov word [yVelocity],0
-    jmp done_it
     stillInAir:
         ret
 
