@@ -3,6 +3,11 @@ org 100h
 jmp start
 playerX dw 0
 playerY dw 0
+gravity dw 0
+yVelocity dw 0
+groundY dw 0;      the ground position
+jmpStrength dw -15
+is_Jumping dw 0
 buffer times 64000 db 0
 start:
     mov ax,cs;no purpose just for explicit initilailzation
@@ -47,7 +52,7 @@ clearScreen:
     xor di,di
     xor ax,ax
     mov cx,64000
-    rep stosb; 
+    rep stosb;  //
     ret
 initializeGraphics:
     mov ax,13h
@@ -62,9 +67,12 @@ readKey:
     jz done
     mov ah,00
     int 16h
+    cmp ah, 01h
+    jne notEsc
+    jmp near end
+
+notEsc:
     
-    cmp ah,01h        ; ESC scancode
-    je end
     cmp ah,48h
     je moveUp
     cmp ah,50h
@@ -75,23 +83,29 @@ readKey:
     je moveRight
     jmp done
 
-    
     moveUp:
-        sub word [playerY],1
+        cmp word [playerY], 0
+        jle done
+        sub word [playerY], 1
         jmp done
 
     moveDown:
-        add word [playerY],1
+        cmp word [playerY], 186
+        jge done
+        add word [playerY], 1
         jmp done
 
     moveLeft:
-        sub word [playerX],1
+        cmp word [playerX], 0
+        jle done
+        sub word [playerX], 1
         jmp done
 
     moveRight:
-        add word [playerX],1
+        cmp word [playerX], 312
+        jge done
+        add word [playerX], 1
         jmp done
-
     done:
         ret
 
@@ -124,9 +138,6 @@ displayShape:
     
     finished:;                   call output interrup and return
     ret
-
-
-
 
 end:
     mov ax,0003h
