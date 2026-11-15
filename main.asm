@@ -5,10 +5,9 @@ playerX dw 0
 playerY dw 0
 gravity dw 1
 yVelocity dw 0
-groundY dw 186;      the ground position
+groundY dw 172;      the ground position--------adjust according to height increase means down. decreasing it means up
 jmpStrength dw -15
 is_Jumping dw 0
-is_Collision dw 0
 buffer times 64000 db 0
 start:
     mov ax,cs;no purpose just for explicit initilailzation
@@ -17,10 +16,11 @@ start:
 
 main:
     call readKey
+    call applyGravity
     call clearBuffer
     call displayShape
     call presentFrame
-;                collision//first display graphics. if working then later we'll write collision
+    ;further functions
     jmp main
 clearBuffer:
     cld
@@ -76,8 +76,6 @@ notEsc:
     
     cmp ah,48h
     je moveUp
-            ;cmp ah,50h
-            ;je moveDown
     cmp ah,4Bh
     je moveLeft
     cmp ah,4Dh
@@ -85,24 +83,18 @@ notEsc:
     jmp done
 
     moveUp:;if upKey pressed and on ground
-        cmp word [playerY],0
-        je done
         cmp word [is_Jumping],1
         je done
-        mov bx,[playerY]
-        cmp bx,[groundY]
+        cmp word [playerY],0
+        je done
+        mov bx,[groundY]
+        sub bx,14;----------------------------adjust accordingly
+        cmp [playerY],bx        
         jne done
         mov ax,[jmpStrength]
         mov [yVelocity],ax
         mov word [is_Jumping],1
         jmp done
-
-
-;    moveDown:
-;        cmp word [playerY], 186
-;        jge done
-;        add word [playerY], 1
-;        jmp done
 
     moveLeft:
         cmp word [playerX], 0
@@ -116,23 +108,24 @@ notEsc:
         add word [playerX], 1
         jmp done
     done:
-        mov bx,[gravity]
-        add [yVelocity],bx
-        mov bx,[yVelocity]
-        add [playerY],bx
-        mov bx, [groundY]
-        cmp [playerY],bx;if playerY<=groundValue------------------------------
-        jl done_it
-        cmp word [is_Jumping],1;     check for collision if (isJumping){isJumping=0}else{collision==1}
-        jne collision
-        mov word [is_Jumping],0
-        mov [playerY],bx
-        jmp done_it
-        collision:
-        mov [playerY],bx
-        mov word [is_Collision],1
-        done_it:
-            ret
+        ret
+applyGravity:
+    mov bx,[gravity]
+    add [yVelocity],bx
+    mov bx,[yVelocity]
+    add [playerY],bx
+
+    mov bx,[groundY];
+    sub bx,14--------------------   adjust accordingly
+
+    cmp [playerY],bx;if playerY<=groundValue------------------------------
+    jl stillInAir
+    mov word [is_Jumping],0
+    mov [playerY],bx
+    mov word [yVelocity],0
+    jmp done_it
+    stillInAir:
+        ret
 
 displayShape:
     mov bx,0
